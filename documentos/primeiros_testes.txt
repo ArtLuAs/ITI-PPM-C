@@ -36,3 +36,10 @@ K = 1		->	118.901	BYTES
 K = 4		->	10.444 BYTES
 K = 8		->	253 BYTES 
 K = 10		->	254 BYTES
+
+(numeros 1MB)
+entrada.txt ->  914.404 BYTES ok ok ok ok
+K = 0		->	380.122 BYTES
+K = 1		->	379.850 BYTES
+K = 4		->	409.885 BYTES
+K = 8		->	pc arthur -> morreu
