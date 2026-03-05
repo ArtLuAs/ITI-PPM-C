@@ -23,6 +23,12 @@ void compressPPM(const string& input, const string& outputFile, int order) {
                 if (isExcluded[i]) node->freqTable->excludeSymbol(i);
             }
 
+            // O peso do Escape é igual à quantidade de símbolos únicos neste contexto
+            uint32_t uniqueSymbols = node->activeSymbols.size();
+            // Garante peso mínimo de 1 para evitar probabilidade zero caso o nó seja novo
+            uint32_t escapeWeight = (uniqueSymbols > 0) ? uniqueSymbols : 1; 
+            node->freqTable->set(256, escapeWeight);
+            
             if (node->freqTable->get(symbol) > 0) {
                 encoder.write(*(node->freqTable), symbol);
                 node->freqTable->restoreExcludedSymbols();

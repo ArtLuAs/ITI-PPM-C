@@ -16,7 +16,7 @@ int main() {
     // outOriginal << textoOriginal;
     // outOriginal.close();
 
-    ifstream inOriginal("entrada.txt");
+    ifstream inOriginal("documentos/memoriaspostumas.txt");
     string inputStr((istreambuf_iterator<char>(inOriginal)), istreambuf_iterator<char>());
     inOriginal.close();
 

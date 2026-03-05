@@ -32,6 +32,10 @@ void decompressPPM(const string& inputFile, const string& outputFile, int order)
                 if (isExcluded[i]) node->freqTable->excludeSymbol(i);
             }
 
+            uint32_t uniqueSymbols = node->activeSymbols.size();
+            uint32_t escapeWeight = (uniqueSymbols > 0) ? uniqueSymbols : 1; 
+            node->freqTable->set(256, escapeWeight);
+
             decodedSymbol = decoder.read(*(node->freqTable));
             node->freqTable->restoreExcludedSymbols();
 
