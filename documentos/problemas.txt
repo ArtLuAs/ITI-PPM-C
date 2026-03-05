@@ -1,0 +1,3 @@
+Hash map x Trie x patricia (trie implementada)
+Codificação dos simbolos (quantidade) 0 a 255 (256 simbolos) + EOF + escape (rho)
+K < 0 -> contexto infinito

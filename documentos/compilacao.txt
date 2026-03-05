@@ -1,0 +1,7 @@
+rodar no terminal:
+g++ *.cpp -o ppm_compressao -O2
+
+./ppm_compressao
+
+compressao:
+xxd -b teste_comprimido.bin

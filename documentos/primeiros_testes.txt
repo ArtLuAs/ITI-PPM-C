@@ -1,0 +1,38 @@
+(rato roeu)
+entrada.txt	->	112 BYTES ok ok ok ok ok
+K = 0		->	88 BYTES
+K = 1		->	129 BYTES	
+K = 2		->	74 BYTES
+K = 3		->	73 BYTES
+K = 4		->	73 BYTES
+
+(5x rato roeu)
+entrada.txt	->	564 BYTES ok ok ok ok ok
+K = 0		->	343 BYTES
+K = 1		->	197 BYTES	
+K = 2		->	138 BYTES
+K = 3		->	122 BYTES
+K = 4		->	117 BYTES
+
+
+(Memorias postumas)
+entrada.txt	->	363.034 BYTES ok ok ok ok ok ok ok ok ok ok ok
+K = 0		->	208.217 BYTES
+K = 1		->	154.061	BYTES
+K = 2		->	131.218 BYTES
+K = 3		->	116.727 BYTES
+K = 4		->	112.177 BYTES
+K = 5		->	114.012 BYTES
+K = 6		->	116.965 BYTES
+K = 7		->	119.062 BYTES
+K = 8		->	120.526 BYTES
+K = 9		->	121.451 BYTES
+K = 10		->	121.973 BYTES
+
+(4353 rato roeu)
+entrada.txt	->	491.888 BYTES ok ok ok ok ok ok
+K = 0		->	225.662 BYTES
+K = 1		->	118.901	BYTES
+K = 4		->	10.444 BYTES
+K = 8		->	253 BYTES 
+K = 10		->	254 BYTES
