@@ -2,10 +2,13 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <chrono>
 #include <filesystem> // Adicione esta biblioteca
 #include "headers/PPM.hpp"
 
 using namespace std;
+
+// mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
 int main() {
     vector<string> listaArquivos = {
@@ -41,12 +44,20 @@ int main() {
 
         string inputStr((istreambuf_iterator<char>(inOriginal)), istreambuf_iterator<char>());
         inOriginal.close();
+        
+        auto start_compress = chrono::high_resolution_clock::now();
 
         cout << "-> Comprimindo para: " << arquivoComprimido << endl;
         compressPPM(inputStr, arquivoComprimido, ordemK);
 
+        auto end_compress = chrono::high_resolution_clock::now();
+
+        auto start_decompress = chrono::high_resolution_clock::now();
+
         cout << "-> Descomprimindo para: " << arquivoDescomprimido << endl;
         decompressPPM(arquivoComprimido, arquivoDescomprimido, ordemK);
+
+        auto end_decompress = chrono::high_resolution_clock::now();
 
         // Também abrir em modo binário na verificação
         ifstream inDescomprimido(arquivoDescomprimido, ios::binary);
@@ -63,6 +74,13 @@ int main() {
         } else {
             cout << "ERRO: Os dados recuperados diferem da entrada original." << endl;
         }
+
+        chrono::duration<double> duration1 = end_compress - start_compress;
+        chrono::duration<double> duration2 = end_decompress - start_decompress;
+
+        cout << "DURACAO COMPRESSAO: " << (double) (duration1.count()) << endl;
+        cout << "DURACAO DESCOMPRESSAO: " << (double) (duration2.count()) << endl;
+        cout << "DURACAO TOTAL: " << (double) (duration1.count() + duration2.count()) << endl;
     }
 
     return 0;
