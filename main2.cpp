@@ -9,11 +9,14 @@ using namespace std;
 
 int main() {
     vector<string> listaArquivos = {
-        "xml",
+        // "silesia/mr", "silesia/ooffice", "silesia/mozilla", 
+        "silesia/dickens"
+        // , 
+        // "silesia/osdb", "silesia/x-ray", "silesia/reymont", "silesia/nci", "silesia/samba", "silesia/webster", "silesia/sao", "silesia/xml"
         // Você pode colocar qualquer formato aqui agora, ex: "documentos/foto.png"
     };
 
-    int ordemK = 4; 
+    int ordemK = 8; 
 
     for (const auto& nomeArquivo : listaArquivos) {
         cout << "\n=======================================================" << endl;
