@@ -39,3 +39,10 @@
 
 # debug information files
 *.dwo
+
+/ppm_compressao
+/saida_descomprimida.txt
+/teste_ppm.bin
+/ppm_descompressao
+/saida_comprimida.ppm
+/teste_compressao.bin
