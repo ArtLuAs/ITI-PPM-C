@@ -3,5 +3,9 @@ g++ *.cpp -o ppm_compressao -O2
 
 ./ppm_compressao
 
-compressao:
+compressao (ver binarios):
 xxd -b teste_comprimido.bin
+
+Novo comando (modularizado):
+
+g++ src/*.cpp *.cpp -o ppm_compressao -O2 && ./ppm_compressao

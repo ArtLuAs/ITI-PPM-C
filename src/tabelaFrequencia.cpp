@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "tabelaFrequencia.hpp"
+#include "../headers/tabelaFrequencia.hpp"
 
 using std::uint32_t;
 

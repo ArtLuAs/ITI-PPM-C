@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "PPM.hpp"
+#include "headers/PPM.hpp"
 
 using namespace std;
 

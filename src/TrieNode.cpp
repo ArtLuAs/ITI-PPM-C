@@ -1,4 +1,4 @@
-#include "TrieNode.hpp"
+#include "../headers/TrieNode.hpp"
 
 // Construtor
 TrieNode::TrieNode() {

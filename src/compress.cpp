@@ -1,9 +1,9 @@
-#include "PPM.hpp"
+#include "../headers/PPM.hpp"
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "ArithmeticCoder.hpp"
-#include "ContextModel.hpp"
+#include "../headers/ArithmeticCoder.hpp"
+#include "../headers/ContextModel.hpp"
 
 using namespace std;
 

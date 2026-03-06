@@ -9,7 +9,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
-#include "ArithmeticCoder.hpp"
+#include "../headers/ArithmeticCoder.hpp"
 
 using std::uint32_t;
 using std::uint64_t;
