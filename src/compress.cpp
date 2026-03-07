@@ -1,5 +1,7 @@
 #include "../headers/PPM.hpp"
 #include <iostream>
+#include <unordered_map>
+#include <string_view>
 #include <iomanip>
 #include <fstream>
 #include <cmath>
@@ -9,6 +11,41 @@
 #include "../headers/ContextModel.hpp"
 
 using namespace std;
+
+double calcularEntropiaOrdemK(const string& input, int k) {
+    if (input.length() <= static_cast<size_t>(k)) return 0.0;
+
+    unordered_map<string_view, int> contextFreq;
+    unordered_map<string_view, int> contextCharFreq;
+
+    size_t nContexts = input.length() - k;
+
+    // 1. Conta as frequências de todos os contextos (tamanho k) 
+    // e contextos + caractere seguinte (tamanho k+1)
+    for (size_t i = 0; i < nContexts; ++i) {
+        string_view ctx(input.data() + i, k);
+        string_view ctxChar(input.data() + i, k + 1);
+
+        contextFreq[ctx]++;
+        contextCharFreq[ctxChar]++;
+    }
+
+    double entropiaK = 0.0;
+    double nContexts_d = static_cast<double>(nContexts);
+
+    // 2. Aplica a fórmula da Entropia Condicional
+    for (const auto& [ctxChar, count_ctxChar] : contextCharFreq) {
+        string_view ctx = ctxChar.substr(0, k);
+        int count_ctx = contextFreq[ctx];
+
+        double p_cx = static_cast<double>(count_ctxChar) / nContexts_d; // P(Contexto e Char)
+        double p_x_given_c = static_cast<double>(count_ctxChar) / static_cast<double>(count_ctx); // P(Char | Contexto)
+
+        entropiaK -= p_cx * log2(p_x_given_c);
+    }
+
+    return entropiaK;
+}
 
 void compressPPM(const string& input, const string& outputFile, int order) {
 
@@ -38,6 +75,8 @@ void compressPPM(const string& input, const string& outputFile, int order) {
     }
     
     cout << "Entropia de Ordem-0 do arquivo: " << entropia << " bits/char" << endl;
+    double entropiaOrdemK = calcularEntropiaOrdemK(input, order);
+    cout << "Entropia Empirica de Ordem-" << order << " do arquivo: " << entropiaOrdemK << " bits/char" << endl;
     // --------------------------------------------------------
     ofstream outStream(outputFile, ios::binary);
     BitOutputStream bitOut(outStream);
@@ -113,7 +152,8 @@ void compressPPM(const string& input, const string& outputFile, int order) {
             // Grava os pontos no CSV
             csvOut << totalSymbolsProcessed << "," 
                    << currentBPS << "," 
-                   << accumulatedBPS << "\n"; // (Tirei a entropia pois não estava declarada no seu snippet)
+                   << accumulatedBPS << "," 
+                   << entropia << "\n";
 
             // Inicializa o suavizador na primeira janela
             if (smoothedBPS == 0.0) {
