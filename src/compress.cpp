@@ -15,18 +15,30 @@ void compressPPM(const string& input, const string& outputFile, int order) {
 // --------------------------------------------------------
     // CÁLCULO DA ENTROPIA DE ORDEM-0 (Baseline de Shannon)
     // --------------------------------------------------------
-    map<unsigned char, int> freqMap;
+   map<unsigned char, int> freqMap;
     for (unsigned char c : input) {
         freqMap[c]++;
     }
+    
     double entropia = 0.0;
-    double tamanhoTotalStr = input.length();
-    for (auto const& [c, count] : freqMap) {
-        double probabilidade = count / tamanhoTotalStr;
-        entropia -= probabilidade * log2(probabilidade);
+    
+    // TRAVA 1: Cast explícito para double para forçar divisão de ponto flutuante
+    double tamanhoTotalStr = static_cast<double>(input.length());
+    
+    // TRAVA 2: Impede divisão por zero caso o arquivo lido esteja completamente vazio
+    if (tamanhoTotalStr > 0.0) { 
+        for (auto const& [c, count] : freqMap) {
+            
+            // TRAVA 3: Se a contagem for 0, ignoramos, pois na fórmula de Shannon 0*log(0) = 0
+            if (count > 0) { 
+                double probabilidade = static_cast<double>(count) / tamanhoTotalStr;
+                entropia -= probabilidade * log2(probabilidade);
+            }
+        }
     }
+    
     cout << "Entropia de Ordem-0 do arquivo: " << entropia << " bits/char" << endl;
-    // --------------------------------------------------------    ofstream outStream(outputFile, ios::binary);
+    // --------------------------------------------------------
     ofstream outStream(outputFile, ios::binary);
     BitOutputStream bitOut(outStream);
     ArithmeticEncoder encoder(32, bitOut);
