@@ -18,7 +18,8 @@ ContextModel::ContextModel(int k) : maxOrder(k) {
     }
 
     // Garante que o EOF possa ser codificado na Ordem-0
-    root->incrementSymbol(257);
+    root->incrementSymbol(257); // Garante o EOF
+    root->incrementSymbol(258); // Garante o Reset
 }
 
 // Retorna os contextos do maior para o menor
@@ -80,4 +81,20 @@ void ContextModel::updateAndShift(uint32_t symbol) {
     if (history.size() > static_cast<size_t>(maxOrder)) {
         history.pop_front(); 
     }
+}
+
+// resetar a árvore
+void ContextModel::reset() {
+    // Limpa a janela deslizante
+    history.clear(); 
+    
+    // Destrói a árvore antiga e cria uma raiz nova
+    root = std::make_unique<TrieNode>();
+    
+    // Readiciona os símbolos obrigatórios na Ordem-0
+    for (uint32_t i = 0; i < 256; i++) {
+        root->incrementSymbol(i); 
+    }
+    root->incrementSymbol(257); // Garante o EOF
+    root->incrementSymbol(258); // Garante o RESET
 }

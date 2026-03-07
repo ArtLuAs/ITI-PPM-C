@@ -63,6 +63,9 @@ public:
     void excludeSymbol(std::uint32_t symbol);
     void restoreExcludedSymbols();
 
+    // Método para evitar overflow e aplicar o fator de envelhecimento (Aging)
+    void halveFrequencies();
+
 private:
     std::uint32_t read(std::uint32_t index) const;
     static std::uint32_t checkedAdd(std::uint32_t x, std::uint32_t y);

@@ -174,6 +174,42 @@ void SimpleFrequencyTable::restoreExcludedSymbols() {
 }
 
 // -------------------------------------------------------------------------
+// Implementação do Rescaling (Halving)
+// -------------------------------------------------------------------------
+
+void SimpleFrequencyTable::halveFrequencies() {
+    // Zera o total atual e limpa a Árvore de Fenwick
+    total = 0;
+    std::fill(tree.begin(), tree.end(), 0);
+
+    for (size_t i = 0; i < frequencies.size(); i++) {
+        if (frequencies[i] > 0) {
+            // Divide por 2
+            frequencies[i] = frequencies[i] / 2;
+            
+            // REGRA DE OURO: O que já existia não pode sumir!
+            // Se cair para 0, arredondamos de volta para 1. 
+            // Se deixarmos zerar, o decodificador pode se perder nos escapes.
+            if (frequencies[i] == 0) {
+                frequencies[i] = 1;
+            }
+        }
+        
+        // Atualiza o total e prepara a base da Fenwick Tree
+        total = checkedAdd(total, frequencies[i]);
+        tree[i + 1] = checkedAdd(tree[i + 1], frequencies[i]);
+    }
+
+    // Reconstrói a Fenwick Tree em tempo O(N)
+    for (size_t i = 1; i <= frequencies.size(); i++) {
+        uint32_t parent = i + (i & -i);
+        if (parent <= frequencies.size()) {
+            tree[parent] = checkedAdd(tree[parent], tree[i]);
+        }
+    }
+}
+
+// -------------------------------------------------------------------------
 // Métodos Privados
 // -------------------------------------------------------------------------
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -13,13 +14,13 @@ using namespace std;
 int main() {
     vector<string> listaArquivos = {
         // "silesia/mr", "silesia/ooffice", "silesia/mozilla", 
-        "silesia/dickens"
+        "silesia/dickens", "silesia/xml"
         // , 
         // "silesia/osdb", "silesia/x-ray", "silesia/reymont", "silesia/nci", "silesia/samba", "silesia/webster", "silesia/sao", "silesia/xml"
         // Você pode colocar qualquer formato aqui agora, ex: "documentos/foto.png"
     };
 
-    int ordemK = 8; 
+    int ordemK = 4; 
 
     for (const auto& nomeArquivo : listaArquivos) {
         cout << "\n=======================================================" << endl;
@@ -81,6 +82,39 @@ int main() {
         cout << "DURACAO COMPRESSAO: " << (double) (duration1.count()) << endl;
         cout << "DURACAO DESCOMPRESSAO: " << (double) (duration2.count()) << endl;
         cout << "DURACAO TOTAL: " << (double) (duration1.count() + duration2.count()) << endl;
+
+        // ... seus couts de DURACAO ...
+
+        // --- EXPERIMENTOS E AVALIACAO ---
+        try {
+            // std::filesystem::file_size retorna o tamanho em bytes
+            auto tamanhoOriginal = std::filesystem::file_size(nomeArquivo);
+            auto tamanhoComprimido = std::filesystem::file_size(arquivoComprimido);
+
+            // BPC (Bits Por Caractere): (Bytes Comprimidos * 8) / Bytes Originais
+            double bpc = (static_cast<double>(tamanhoComprimido) * 8.0) / tamanhoOriginal;
+
+            // Razão de Compressão (Porcentagem do tamanho original)
+            double razaoCompressao = (static_cast<double>(tamanhoComprimido) / tamanhoOriginal) * 100.0;
+
+            cout << "\n--- METRICAS DE COMPRESSAO ---" << endl;
+            cout << "Tamanho Original:    " << tamanhoOriginal << " bytes" << endl;
+            cout << "Tamanho Comprimido:  " << tamanhoComprimido << " bytes" << endl;
+            
+            // Usando setprecision para formatar a saída com 3 casas decimais
+            cout << "BPC (Bits per Char): " << fixed << setprecision(3) << bpc << " bits/char" << endl;
+            cout << "Razao de Compressao: " << fixed << setprecision(2) << razaoCompressao << "% do tamanho original" << endl;
+            
+            if (tamanhoComprimido >= tamanhoOriginal) {
+                cout << "[!] Sem ganho de espaco. O arquivo cresceu ou empatou." << endl;
+            } else {
+                cout << "[+] Reducao efetiva de espaco: " << fixed << setprecision(2) << (100.0 - razaoCompressao) << "%" << endl;
+            }
+
+        } catch (const std::filesystem::filesystem_error& e) {
+            cerr << "Erro ao calcular metricas de tamanho: " << e.what() << endl;
+        }
+        cout << "=======================================================\n" << endl;
     }
 
     return 0;

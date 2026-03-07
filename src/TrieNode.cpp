@@ -4,8 +4,8 @@
 TrieNode::TrieNode() {
     // Inicializa o vetor com 257 posições zeradas 
     // (0 a 255 para os bytes normais, 256 para o Escape/EOF)
-    // // 0-255 (Chars), 256 (Escape), 257 (EOF)
-    std::vector<uint32_t> initialFreqs(258, 0);
+    // // 0-255 (Chars), 256 (Escape), 257 (EOF), 258 (RESET)
+    std::vector<uint32_t> initialFreqs(259, 0);
     
     // O Escape (256) DEVE começar com peso > 0.
     initialFreqs[256] = 1; 
@@ -19,6 +19,13 @@ void TrieNode::incrementSymbol(uint32_t symbol) {
         activeSymbols.push_back(symbol);
     }
     freqTable->increment(symbol);
+
+    // GATILHO DE OVERFLOW / AGING
+    // Se a soma de todas as frequências DESTE contexto bater o limite, cortamos pela metade o contexto.
+    // limite da literatura (1 << 14)
+    if (freqTable->getTotal() >= 16384) {
+        freqTable->halveFrequencies();
+    }
 }
 
 // Retorna o nó filho correspondente ao símbolo, ou nullptr se não existir
