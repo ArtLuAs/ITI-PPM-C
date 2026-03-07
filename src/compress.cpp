@@ -49,10 +49,10 @@ double calcularEntropiaOrdemK(const string& input, int k) {
 
 void compressPPM(const string& input, const string& outputFile, int order) {
 
-// --------------------------------------------------------
+    // --------------------------------------------------------
     // CÁLCULO DA ENTROPIA DE ORDEM-0 (Baseline de Shannon)
     // --------------------------------------------------------
-   map<unsigned char, int> freqMap;
+    map<unsigned char, int> freqMap;
     for (unsigned char c : input) {
         freqMap[c]++;
     }
@@ -78,17 +78,24 @@ void compressPPM(const string& input, const string& outputFile, int order) {
     double entropiaOrdemK = calcularEntropiaOrdemK(input, order);
     cout << "Entropia Empirica de Ordem-" << order << " do arquivo: " << entropiaOrdemK << " bits/char" << endl;
     // --------------------------------------------------------
+    
     ofstream outStream(outputFile, ios::binary);
     BitOutputStream bitOut(outStream);
     ArithmeticEncoder encoder(32, bitOut);
     
     ContextModel model(order);
     vector<bool> isExcluded(259, false); // 258 
+    
     // --- ABRINDO O ARQUIVO CSV PARA O GRÁFICO ---
     string csvName = outputFile + "_grafico.csv";
     ofstream csvOut(csvName);
-    csvOut << "BytesProcessados,L_Barra_Janela,L_Barra_Acumulado,Entropia_Ordem0\n";
+    
+    // 1. ATUALIZAÇÃO DO CABEÇALHO DO CSV COM AS NOVAS MÉTRICAS
+    csvOut << "BytesProcessados,L_Barra_Janela,L_Barra_Acumulado,Entropia_Ordem0,Entropia_OrdemK,Valor_K,L_Barra_Teorico\n";
     // --------------------------------------------
+
+    // 2. VARIÁVEL PARA O L_BARRA TEÓRICO ADAPTATIVO
+    double informacaoAdaptativaAcumulada = 0.0;
 
     auto encodeSymbol = [&](uint32_t symbol) {
         vector<TrieNode*> activeNodes = model.getActiveContextNodes();
@@ -105,10 +112,20 @@ void compressPPM(const string& input, const string& outputFile, int order) {
             node->freqTable->set(256, escapeWeight);
             
             if (node->freqTable->get(symbol) > 0) {
+                // --- NOVO: Cálculo da Informação do Símbolo no instante de predição ---
+                double p = static_cast<double>(node->freqTable->get(symbol)) / node->freqTable->getTotal();
+                informacaoAdaptativaAcumulada += -log2(p);
+                // ----------------------------------------------------------------------
+
                 encoder.write(*(node->freqTable), symbol);
                 node->freqTable->restoreExcludedSymbols();
                 break; 
             } else {
+                // --- NOVO: Cálculo da Informação do Escape no instante de predição ---
+                double p_escape = static_cast<double>(node->freqTable->get(256)) / node->freqTable->getTotal();
+                informacaoAdaptativaAcumulada += -log2(p_escape);
+                // ---------------------------------------------------------------------
+
                 encoder.write(*(node->freqTable), 256); // Escape
                 for (uint32_t activeSym : node->activeSymbols) {
                     isExcluded[activeSym] = true;
@@ -149,18 +166,24 @@ void compressPPM(const string& input, const string& outputFile, int order) {
             double currentBPS = static_cast<double>(bitsInWindow) / j;
             double accumulatedBPS = static_cast<double>(currentBitSize) / totalSymbolsProcessed;
             
-            // Grava os pontos no CSV
+            // 3. NOVO: L_Barra Teórico é a média da informação processada até o momento
+            double l_barra_teorico = informacaoAdaptativaAcumulada / totalSymbolsProcessed;
+            
+            // 4. Grava TODOS os pontos no CSV (Agora com 7 colunas)
             csvOut << totalSymbolsProcessed << "," 
                    << currentBPS << "," 
                    << accumulatedBPS << "," 
-                   << entropia << "\n";
+                   << entropia << ","
+                   << entropiaOrdemK << ","
+                   << order << ","
+                   << l_barra_teorico << "\n";
 
             // Inicializa o suavizador na primeira janela
             if (smoothedBPS == 0.0) {
                 smoothedBPS = currentBPS;
             }
 
-            // 3. A NOVA AVALIAÇÃO DE PERFORMANCE
+            // A NOVA AVALIAÇÃO DE PERFORMANCE
             // Só reseta se: Piorou > 20% em relação à média E o BPS atual está realmente ruim (> 5.0)
             if (currentBPS > smoothedBPS * (1.0 + thresholdPercent) && currentBPS > safetyFloorBPS) {
                 cout << "[!] Mudanca drastica detectada (Media: " << fixed << setprecision(3) 
@@ -187,5 +210,6 @@ void compressPPM(const string& input, const string& outputFile, int order) {
     bitOut.finish();
     outStream.close();
     csvOut.close(); 
-        cout << "Compressao concluida! Dados do grafico salvos em: " << csvName << endl;
+    
+    cout << "Compressao concluida! Dados do grafico salvos em: " << csvName << endl;
 }

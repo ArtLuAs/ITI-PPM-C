@@ -6,4 +6,4 @@ Rho (escape) não estava sendo incrementado
 Como cronometrar o algoritmo
 Reset (foi implementado como novo simbolo)
 Halving -> Soluciona o problema do overflow matemático a nível de bits ao dividir as frequencias por 2 quando um contexto explode
-
+Janela de arquivo: Problemas na janela de mudança de arquivo
