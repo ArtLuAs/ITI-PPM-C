@@ -225,7 +225,7 @@ clang++ src/*.cpp main.cpp -o ppm_compressao -O2
 Para rodar:
 
 ```sh
-/ppm_compressao.exe
+./ppm_compressao.exe
 ```
 
 Pós-execução do PPM-C:
