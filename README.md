@@ -118,7 +118,10 @@ Este projeto foi desenvolvido utilizando apenas a biblioteca padrão do C++ (STL
 │   ├── tabelaFrequencia.cpp      # Operações em tabelas de frequência
 │   └── TrieNode.cpp              # Manipulação dos nós da Trie
 ├── main.cpp                      # Ponto de entrada: compressão/descompressão de arquivo
+├── benchmark.ps1                 # Script PowerShell para execução de benchmarks (comparação com 7z)
+├── plotar_benchmark.py           # Geração de gráficos de benchmark (comparação com 7z)
 ├── plotar_grafico.py             # Visualização da performance (BPS vs entropias)
+├── plotar_resets.py              # Diagnóstico de resets do modelo adaptativo
 └── README.md                     # Este arquivo, documenta o projeto
 ```
 
