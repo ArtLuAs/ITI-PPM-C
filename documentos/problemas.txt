@@ -1,3 +1,4 @@
+Array de Soma de Prefixos x Fenwick Tree x Segment Tree
 Hash map x Trie x patricia (trie implementada)
 Codificação dos simbolos (quantidade) 0 a 255 (256 simbolos) + EOF + escape (rho)
 K < 0 -> contexto infinito
@@ -6,4 +7,7 @@ Rho (escape) não estava sendo incrementado
 Como cronometrar o algoritmo
 Reset (foi implementado como novo simbolo)
 Halving -> Soluciona o problema do overflow matemático a nível de bits ao dividir as frequencias por 2 quando um contexto explode
-Janela de arquivo: Problemas na janela de mudança de arquivo
+Janela de arquivo: Definir o threshold para um valor coerente para mudanças de padrão
+Cronometrar o 7-zip e realizar o benchmark
+Gráficos comparativos e automatização dos processos
+Nível de complexidade do projeto e assuntos relacinados (aprender as estruturas e implementação)
