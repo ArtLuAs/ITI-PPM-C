@@ -199,5 +199,59 @@ Representam a estrutura de contextos (Trie) e o gerenciamento do histórico.
 
 [**Atenção:** Lembre de baixar o projeto e extraí-lo devidamente do `.zip`.](#zap-simulação-de-circuitos-rlc-paralelo)
 
+#### Requisitos
+- Um compilador C++ (recomendamos `g++` ou `clang++`)
+- Terminal de linha de comando
+- Python 3 com as bibliotecas `matplotlib` e `pandas` para gerar os gráficos de desempenho
+
+```sh
+pip install matplotlib pandas
+```
+
+### No Windows
+
+Utilizando `g++` para compilar:
+
+```sh
+g++ src/*.cpp main.cpp -o ppm_compressao -O2
+```
+
+Utilizando `clang++` para compilar:
+
+```sh
+clang++ src/*.cpp main.cpp -o ppm_compressao -O2
+```
+
+Para rodar:
+
+```sh
+/ppm_compressao.exe
+```
+
+Pós-execução do PPM-C:
+
+```sh:
+python plotar_grafico.py
+```
+
+### No Linux
+
+Utilizando `g++` para compilar e executar em seguida:
+
+```sh
+g++ src/*.cpp main.cpp -o ppm_compressao -O2 && ./ppm_compressao
+```
+
+Utilizando `clang++` para compilar e executar em seguida:
+
+```sh
+clang++ src/*.cpp main.cpp -o ppm_compressao -O2 && ./ppm_compressao
+```
+
+Pós-execução do PPM-C:
+
+```sh:
+python3 plotar_grafico.py
+```
 
 **OBS.:** Utilizamos de barra normal ('/') considerando um ambiente como Git Bash, WSL e PowerShell, considere utilizar de barra invertida ('\\') em caso de não compilar
