@@ -1,9 +1,8 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import sys
 
-import matplotlib.pyplot as plt
-import pandas as pd
-
-# Coloque o caminho do seu arquivo CSV aqui
 arquivo_csv = "saidas/dickens_comprimido.bin_grafico.csv"
 
 try:
@@ -12,48 +11,49 @@ except FileNotFoundError:
     print(f"Erro: Arquivo {arquivo_csv} nao encontrado. Rode o C++ primeiro.")
     sys.exit()
 
-plt.figure(figsize=(11, 7))
+plt.figure(figsize=(12, 8))
 
-# 1. LINHAS RETAS (As Entropias teóricas que NÃO mudam)
-plt.axhline(y=df['Entropia_Ordem0'][0], color='red', linestyle='--', linewidth=2, 
-            label=f"Entropia (Ordem-0): {df['Entropia_Ordem0'][0]:.2f} bits")
+h_cols = [col for col in df.columns if col.startswith('H_')]
 
-if 'Entropia_OrdemK' in df.columns and 'Valor_K' in df.columns:
-    ordem_k = int(df['Valor_K'][0])
-    entropia_k = df['Entropia_OrdemK'][0]
-    plt.axhline(y=entropia_k, color='green', linestyle='-.', linewidth=2, 
-                label=f"Entropia (Ordem-{ordem_k}): {entropia_k:.2f} bits")
+cmap = cm.get_cmap('viridis', len(h_cols))
 
-# 2. CURVAS DESCENDENTES (A performance adaptativa do seu compressor)
+for i, col in enumerate(h_cols):
+    ordem = col.split('_')[1]
+    valor_entropia = df[col][0]
+    
+    if ordem == '0':
+        plt.axhline(y=valor_entropia, color='red', linestyle='--', linewidth=2.5, 
+                    label=f"$H_{{{ordem}}}$ (Lim. de Shannon): {valor_entropia:.2f} bits")
+    else:
+        plt.axhline(y=valor_entropia, color=cmap(i), linestyle='-.', linewidth=1.5, alpha=0.8,
+                    label=f"$H_{{{ordem}}}$: {valor_entropia:.2f} bits")
 
-# L_Barra Teórico Adaptativo (A soma dos -log2 das probabilidades)
+
 if 'L_Barra_Teorico' in df.columns:
     plt.plot(df['BytesProcessados'], df['L_Barra_Teorico'], 
-             color='purple', linewidth=2, linestyle=':', 
+             color='purple', linewidth=2.5, linestyle=':', 
              label="$\overline{l}$ (Teórico Adaptativo)")
 
-# L_Barra Real Acumulado (O que o seu codificador aritmético realmente gerou)
+
 plt.plot(df['BytesProcessados'], df['L_Barra_Acumulado'], 
-         color='blue', linewidth=2, label="$\overline{l}$ (Real do Codificador)")
+         color='blue', linewidth=2.5, label="$\overline{l}$ (Real do Codificador)")
 
-# L_Barra da Janela (Mostra os picos que ativam o seu Reset)
+
 plt.plot(df['BytesProcessados'], df['L_Barra_Janela'], 
-         color='cyan', alpha=0.3, linewidth=1, label="$\overline{l}$ (Janelas 1000B)")
+         color='cyan', alpha=0.3, linewidth=1, label="$\overline{l}$ (Janelas Buffer)")
 
-# Configurações estéticas
-plt.title('Performance do PPM: Comprimento Médio vs Entropias Teóricas', fontsize=15)
-plt.xlabel('Bytes Processados', fontsize=12)
+plt.title('Degradação da Entropia Empírica e Performance Adaptativa do PPM', fontsize=16)
+plt.xlabel('Bytes Processados (Tamanho do Arquivo)', fontsize=12)
 plt.ylabel('Bits Por Símbolo (BPS)', fontsize=12)
-plt.legend(loc='upper right', fontsize=11)
+
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=10)
 plt.grid(True, linestyle=':', alpha=0.7)
 
-# Ajuste automático do eixo Y (Começa do zero para vermos bem a ordem-K)
 ymin = 0.0
-ymax = max(df['L_Barra_Acumulado'].max(), df['Entropia_Ordem0'][0]) * 1.2
+ymax = df['H_0'][0] * 1.2
 plt.ylim(ymin, ymax)
 
 plt.tight_layout()
 
-# Salva a imagem no disco e exibe na tela
-plt.savefig(arquivo_csv + ".png", dpi=300)
+plt.savefig(arquivo_csv + ".png", dpi=300, bbox_inches='tight')
 plt.show()
