@@ -21,7 +21,7 @@ double calcularEntropiaOrdemK(const string& input, int k) {
 
         size_t nContexts = input.length() - k;
 
-        for (size_t i = 0; i < nContexts; ++i) {
+        for (size_t i = 0; i < nContexts; i++) {
                 string ctx(input.data() + i, k);
                 string ctxChar(input.data() + i, k + 1);
                 contextFreq[ctx]++;
@@ -33,7 +33,7 @@ double calcularEntropiaOrdemK(const string& input, int k) {
 
         for (const auto& [ctxChar, count_cx] : contextCharFreq) {
                 string ctx = ctxChar.substr(0, k);
-                int count_c = contextFreq.at(ctx); // .at() é mais seguro que []
+                int count_c = contextFreq.at(ctx);
 
                 double p_cx = count_cx / N;
                 double p_x_given_c = static_cast<double>(count_cx) / count_c;
@@ -46,9 +46,7 @@ double calcularEntropiaOrdemK(const string& input, int k) {
 
 void compressPPM(const string& input, const string& outputFile, int order) {
 
-        // --------------------------------------------------------
         // CÁLCULO DE TODAS AS ENTROPIAS (H_0 ATÉ H_K)
-        // --------------------------------------------------------
         map<unsigned char, int> freqMap;
         for (unsigned char c : input) {
                 freqMap[c]++;
@@ -71,42 +69,39 @@ void compressPPM(const string& input, const string& outputFile, int order) {
         entropias[0] = entropia;
         cout << "Entropia H_0: " << entropias[0] << " bits/char" << endl;
 
-        // FOR LOOP: Calcula e salva automaticamente o H_1, H_2 ... até H_K
-        for (int k = 1; k <= order; ++k) {
+        // Salva automaticamente a entropia H_1, H_2 ... até H_K
+        for (int k = 1; k <= order; k++) {
                 entropias[k] = calcularEntropiaOrdemK(input, k);
                 cout << "Entropia H_" << k << ": " << entropias[k] << " bits/char" << endl;
         }
-        // --------------------------------------------------------
 
         ofstream outStream(outputFile, ios::binary);
         BitOutputStream bitOut(outStream);
         ArithmeticEncoder encoder(32, bitOut);
 
         ContextModel model(order);
-        vector<bool> isExcluded(259, false); // 258
+        vector<bool> isExcluded(259, false); // 259 simbolos
 
-        // --- ABRINDO O ARQUIVO CSV PARA O GRÁFICO ---
+        // Abrindo csv
         string csvName = outputFile + "_grafico.csv";
         ofstream csvOut(csvName);
 
-        // 1. CABEÇALHO DINÂMICO NO CSV
+        // CABEÇALHO DINÂMICO NO CSV
         csvOut << "BytesProcessados,L_Barra_Janela,L_Barra_Acumulado,L_Barra_Teorico";
         for (int k = 0; k <= order; ++k) {
                 csvOut << ",H_" << k;
         }
         csvOut << ",SmoothedBPS,BitsNaJanela,ThresholdBPS,ResetFlag,ResetCount\n";
 
-        // --------------------------------------------
-
-        // 2. VARIÁVEL PARA O L_BARRA TEÓRICO ADAPTATIVO
+        // L_BARRA TEÓRICO ADAPTATIVO
         double informacaoAdaptativaAcumulada = 0.0;
 
         auto encodeSymbol = [&](uint32_t symbol) {
                 vector<TrieNode*> activeNodes = model.getActiveContextNodes();
 
                 for (TrieNode* node : activeNodes) {
-                        for (uint32_t i = 0; i < 259; ++i) { // laço até 259? ou 258
-                                if (isExcluded[i])
+                        for (uint32_t i = 0; i < 259; i++) {
+                                if (isExcluded[i]) 
                                         node->freqTable->excludeSymbol(i);
                         }
 
@@ -117,19 +112,17 @@ void compressPPM(const string& input, const string& outputFile, int order) {
                         node->freqTable->set(256, escapeWeight);
 
                         if (node->freqTable->get(symbol) > 0) {
-                                // --- NOVO: Cálculo da Informação do Símbolo no instante de predição ---
+                                // Cálculo da Informação do Símbolo no instante de predição 
                                 double p = static_cast<double>(node->freqTable->get(symbol)) / node->freqTable->getTotal();
                                 informacaoAdaptativaAcumulada += -log2(p);
-                                // ----------------------------------------------------------------------
 
                                 encoder.write(*(node->freqTable), symbol);
                                 node->freqTable->restoreExcludedSymbols();
                                 break;
                         } else {
-                                // --- NOVO: Cálculo da Informação do Escape no instante de predição ---
+                                // Cálculo da Informação do Escape no instante de predição
                                 double p_escape = static_cast<double>(node->freqTable->get(256)) / node->freqTable->getTotal();
                                 informacaoAdaptativaAcumulada += -log2(p_escape);
-                                // ---------------------------------------------------------------------
 
                                 encoder.write(*(node->freqTable), 256); // Escape
                                 for (uint32_t activeSym : node->activeSymbols) {
@@ -148,8 +141,8 @@ void compressPPM(const string& input, const string& outputFile, int order) {
 
         cout << "Comprimindo com monitoramento de Janela e Exportacao CSV..." << endl;
 
-        // --- VARIÁVEIS DE MONITORAMENTO DA JANELA ---
-        int j = 5000;
+        // Monitoramento da janela
+        int j = 5000; // evitar ruidos
         int symbolsInWindow = 0;
         long previousBitSize = 0;
 
@@ -175,7 +168,6 @@ void compressPPM(const string& input, const string& outputFile, int order) {
                         double accumulatedBPS = static_cast<double>(currentBitSize) / totalSymbolsProcessed;
                         double l_barra_teorico = informacaoAdaptativaAcumulada / totalSymbolsProcessed;
 
-                        // Inicializa o suavizador na primeira janela
                         if (smoothedBPS == 0.0)
                                 smoothedBPS = currentBPS;
 
@@ -191,8 +183,8 @@ void compressPPM(const string& input, const string& outputFile, int order) {
                                 totalResets++;
                                 encodeSymbol(258);
                                 model.reset();
-                                smoothedBPS = accumulatedBPS; // <- inicializa com valor real
-                                cooldownRestante = 5;         // <- bloqueia por 5 janelas
+                                smoothedBPS = accumulatedBPS; 
+                                cooldownRestante = 5; // <- bloqueia por 5 janelas
                         } else {
                                 smoothedBPS = (smoothedBPS * 0.7) + (currentBPS * 0.3);
                                 if (cooldownRestante > 0)
@@ -203,7 +195,6 @@ void compressPPM(const string& input, const string& outputFile, int order) {
                              << " bytes=" << totalSymbolsProcessed
                              << endl;
 
-                        // Grava DEPOIS da decisão — ResetFlag e ResetCount já estão corretos
                         csvOut << totalSymbolsProcessed << ","
                                << currentBPS << ","
                                << accumulatedBPS << ","
@@ -223,7 +214,7 @@ void compressPPM(const string& input, const string& outputFile, int order) {
                 }
         }
 
-        encodeSymbol(257); // Emite o EOF verdadeiro (257) no fim do texto
+        encodeSymbol(257); // EOF verdadeiro 
 
         encoder.finish();
         bitOut.finish();

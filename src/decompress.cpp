@@ -20,7 +20,7 @@ void decompressPPM(const string& inputFile, const string& outputFile, int order)
 
     ContextModel model(order);
     
-    // O vetor de exclusão vai de 0 a 258 (tamanho 259)
+    // O vetor de exclusão vai de 0 a 258
     vector<bool> isExcluded(259, false);
 
     cout << "Descomprimindo..." << endl;
@@ -31,50 +31,46 @@ void decompressPPM(const string& inputFile, const string& outputFile, int order)
 
         for (TrieNode* node : activeNodes) {
             
-            // 1. Aplica as exclusões vindas dos escapes anteriores
+            // Exclusões vindas dos escapes anteriores
             for (uint32_t i = 0; i < 259; ++i) {
                 if (isExcluded[i]) node->freqTable->excludeSymbol(i);
             }
 
-            // 2. Cálculo do Peso do Escape (PPM-C) - DEVE SER IGUAL AO COMPRESSOR!
+            // Cálculo do Peso do Escape
             uint32_t uniqueSymbols = node->activeSymbols.size();
             uint32_t escapeWeight = (uniqueSymbols > 0) ? uniqueSymbols : 1; 
             node->freqTable->set(256, escapeWeight);
 
-            // 3. Lê o símbolo do arquivo comprimido
+            // Símbolo do arquivo comprimido
             decodedSymbol = decoder.read(*(node->freqTable));
 
-            // 4. Restaura a tabela imediatamente após a leitura
+            // Restaura a tabela imediatamente após a leitura
             node->freqTable->restoreExcludedSymbols();
 
-            // 5. Analisa o que lemos
+            // Escape 
             if (decodedSymbol == 256) {
-                // É um ESCAPE! Exclui os símbolos deste nó para tentar no contexto menor.
                 for (uint32_t activeSym : node->activeSymbols) {
                     isExcluded[activeSym] = true;
                 }
             } else {
-                // Encontramos o símbolo real (pode ser o char, EOF ou RESET)!
+                // Símbolo real (Char, EOF ou RESET)
                 break; 
             }
         }
 
-        // --- VERIFICAÇÃO DOS SÍMBOLOS DE CONTROLE ---
-
+        // piora da janela
         if (decodedSymbol == 258) {
-            // Recebemos o comando do compressor! A janela dele detectou piora.
             cout << "[!] Comando de RESET recebido. Reiniciando modelo..." << endl;
             
             model.reset();
             
             // Limpa a exclusão e pula para ler a PRÓXIMA letra 
-            // (pois 258 não é uma letra do texto original)
             fill(isExcluded.begin(), isExcluded.end(), false);
             continue; 
         }
 
+        // Fim de arquivo verdadeiro encontrado na Ordem-0
         if (decodedSymbol == 257) {
-            // Fim de arquivo verdadeiro encontrado na Ordem-0
             break; 
         }
 

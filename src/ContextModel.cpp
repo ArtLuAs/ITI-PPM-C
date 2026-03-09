@@ -1,7 +1,6 @@
 #include "../headers/ContextModel.hpp"
 #include <stdexcept>
 
-// Construtor
 ContextModel::ContextModel(int k) : maxOrder(k) {
     if (k < 0) {
         throw std::invalid_argument("Erro: A ordem (k) do modelo PPM deve ser >= 0.");
@@ -9,15 +8,12 @@ ContextModel::ContextModel(int k) : maxOrder(k) {
 
     root = std::make_unique<TrieNode>();
     
-    // GARANTIA DE ORDEM-0: 
-    // A raiz precisa conhecer todos os símbolos possíveis do nosso alfabeto (0 a 255).
-    // Assim, se um caractere der "Escape" em todos os contextos maiores, 
-    // ele obrigatoriamente será encontrado e codificado aqui na Ordem-0.
+    // Ordem 0: 
+    // A raiz precisa conhecer todos os símbolos possíveis do alfabeto (0 a 255).
     for (uint32_t i = 0; i < 256; i++) {
         root->incrementSymbol(i); 
     }
 
-    // Garante que o EOF possa ser codificado na Ordem-0
     root->incrementSymbol(257); // Garante o EOF
     root->incrementSymbol(258); // Garante o Reset
 }
@@ -54,9 +50,9 @@ std::vector<TrieNode*> ContextModel::getActiveContextNodes() const {
 // Atualiza a árvore e desliza a janela
 void ContextModel::updateAndShift(uint32_t symbol) {
     
-    // 1. Atualizamos todos os sufixos do histórico atual.
+    // Atualizamos todos os sufixos do histórico atual.
     // Se o histórico é "AB" e lemos "X", precisamos incrementar "X" no nó "AB",
-    // no nó "B" e no nó raiz "". Se o caminho "AB" não existir, nós o CRIAMOS.
+    // no nó "B" e no nó raiz "". Se o caminho "AB" não existir, criamos.
     
     for (size_t start = 0; start <= history.size(); ++start) {
         TrieNode* current = root.get();
@@ -74,7 +70,7 @@ void ContextModel::updateAndShift(uint32_t symbol) {
         current->incrementSymbol(symbol);
     }
 
-    // 2. Atualiza a janela deslizante (History)
+    // Atualiza a janela deslizante
     history.push_back(symbol);
     
     // Mantém o tamanho máximo da janela igual a 'k'

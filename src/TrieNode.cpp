@@ -1,9 +1,7 @@
 #include "../headers/TrieNode.hpp"
 
-// Construtor
 TrieNode::TrieNode() {
-    // Inicializa o vetor com 257 posições zeradas 
-    // (0 a 255 para os bytes normais, 256 para o Escape/EOF)
+    // Inicializa o vetor com 259 posições zeradas 
     // // 0-255 (Chars), 256 (Escape), 257 (EOF), 258 (RESET)
     std::vector<uint32_t> initialFreqs(259, 0);
     
