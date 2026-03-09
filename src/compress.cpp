@@ -149,13 +149,13 @@ void compressPPM(const string& input, const string& outputFile, int order) {
         cout << "Comprimindo com monitoramento de Janela e Exportacao CSV..." << endl;
 
         // --- VARIÁVEIS DE MONITORAMENTO DA JANELA ---
-        int j = 5000; // 1. AUMENTADO: 5000 é mais seguro contra o ruído do buffer
+        int j = 5000;
         int symbolsInWindow = 0;
         long previousBitSize = 0;
 
         double smoothedBPS = 0.0;       // Usaremos Média Móvel em vez de valor absoluto
-        double thresholdPercent = 0.50; // 20% de tolerância para flutuações naturais
-        double safetyFloorBPS = 5.0;    // 2. PISO: Só reseta se o BPS estiver pior que 5.0 bits/símbolo
+        double thresholdPercent = 0.50; // 50% de tolerância para flutuações naturais
+        double safetyFloorBPS = 5.0;    // Só reseta se o BPS estiver pior que 5.0 bits/símbolo
         int totalResets = 0;
         int cooldownRestante = 0;
 
