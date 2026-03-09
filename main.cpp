@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
             "silesia/samba",
             "silesia/webster",
             "silesia/sao",
-            "silesia/xml"};
+            "silesia/xml",
+            "silesia/silesia.tar"};
 
         int ordemK = (argc > 1) ? stoi(argv[1]) : 4;
         string benchmarkCsv = (argc > 2) ? argv[2] : "";
