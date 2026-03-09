@@ -103,26 +103,27 @@ Este projeto foi desenvolvido utilizando apenas a biblioteca padrão do C++ (STL
 
 ```text
 .
-├── documentos/                   # Documentação adicional do projeto
+├── documentos/                     # Documentação adicional do projeto
 ├── headers/
-│   ├── ArithmeticCoder.hpp       # Codificação aritmética (bits e codificador/decodificador)
-│   ├── ContextModel.hpp          # Modelo de contextos PPM (Trie e gerenciamento)
-│   ├── PPM.hpp                   # Funções públicas de compressão/descompressão
-│   ├── tabelaFrequencia.hpp      # Tabelas de frequência com Fenwick Tree e exclusão
-│   └── TrieNode.hpp              # Nó da Trie com frequências e filhos
+│   ├── ArithmeticCoder.hpp         # Codificação aritmética (bits e codificador/decodificador)
+│   ├── ContextModel.hpp            # Modelo de contextos PPM (Trie e gerenciamento)
+│   ├── PPM.hpp                     # Funções públicas de compressão/descompressão
+│   ├── tabelaFrequencia.hpp        # Tabelas de frequência com Fenwick Tree e exclusão
+│   └── TrieNode.hpp                # Nó da Trie com frequências e filhos
 ├── src/
-│   ├── ArithmeticCoder.cpp       # Implementação da E/S de bits e codificação
-│   ├── compress.cpp              # Compressão PPM com monitoramento e reset
-│   ├── ContextModel.cpp          # Gerenciamento da árvore de contextos
-│   ├── decompress.cpp            # Descompressão PPM com escapes e reset
-│   ├── tabelaFrequencia.cpp      # Operações em tabelas de frequência
-│   └── TrieNode.cpp              # Manipulação dos nós da Trie
-├── main.cpp                      # Ponto de entrada: compressão/descompressão de arquivo
-├── benchmark.ps1                 # Script PowerShell para execução de benchmarks (comparação com 7z)
-├── plotar_benchmark.py           # Geração de gráficos de benchmark (comparação com 7z)
-├── plotar_grafico.py             # Visualização da performance (BPS vs entropias)
-├── plotar_resets.py              # Diagnóstico de resets do modelo adaptativo
-└── README.md                     # Este arquivo, documenta o projeto
+│   ├── ArithmeticCoder.cpp         # Implementação da E/S de bits e codificação
+│   ├── compress.cpp                # Compressão PPM com monitoramento e reset
+│   ├── ContextModel.cpp            # Gerenciamento da árvore de contextos
+│   ├── decompress.cpp              # Descompressão PPM com escapes e reset
+│   ├── tabelaFrequencia.cpp        # Operações em tabelas de frequência
+│   └── TrieNode.cpp                # Manipulação dos nós da Trie
+├── main.cpp                        # Ponto de entrada: compressão/descompressão de arquivo
+├── benchmark.ps1                   # Script PowerShell para execução de benchmarks (comparação com 7z)
+├── plotar_benchmark.py             # Geração de gráficos de benchmark (comparação com 7z)
+├── plotar_grafico.py               # Visualização da performance (BPS vs entropias)
+├── plotar_resets.py                # Diagnóstico de resets do modelo adaptativo
+├── plotar_benchmark_consolidado.py # Geração de gráficos de benchmark (para todos os Ks)
+└── README.md                       # Este arquivo, documenta o projeto
 ```
 
 ### :page_facing_up: Classes e Atributos
@@ -228,7 +229,14 @@ clang++ src/*.cpp main.cpp -o ppm_compressao -O2
 Para rodar:
 
 ```sh
-./ppm_compressao.exe
+# Comprimir um arquivo (Ex: ordem K=4)
+./ppm_compressao.exe -c silesia/dickens dickens.bin 4
+
+# Descomprimir um arquivo
+./ppm_compressao.exe -d dickens.bin dickens_restaurado.txt 4
+
+# Para rodar o benchmark em todo o Corpus Silesia (comportamento padrão):
+./ppm_compressao.exe 4 benchmark_resultados.csv
 ```
 
 Pós-execução do PPM-C:
